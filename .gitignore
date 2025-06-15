@@ -26,3 +26,8 @@ target/
 # already existing elements were commented out
 
 #/target
+
+## ref C++ implementation... DO NOT UPLOAD!!!!
+ref_impl
+*.cpp
+*.hpp
