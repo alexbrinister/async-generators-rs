@@ -11,7 +11,7 @@ pub fn add(left: u64, right: u64) -> u64 {
 ///
 /// * `length` - Length of the output data pattern vector.
 /// * `walking_ones` - makes output a walking 1s pattern instead of the default walking 0s.
-pub fn make_walking_bit_data(length: usize, walking_ones: bool) -> Vec<u32> {
+pub async fn make_walking_bit_data(length: usize, walking_ones: bool) -> Vec<u32> {
     let mut out: Vec<u32> = vec![0; length];
     let mut flip = false;
     let mut index: usize = 0;
@@ -54,18 +54,18 @@ mod tests {
         assert_eq!(result, 4);
     }
 
-    #[test]
-    fn walking_1s_test() {
-        let result = make_walking_bit_data(10, true);
+    #[tokio::test]
+    async fn walking_1s_test() {
+        let result = make_walking_bit_data(10, true).await;
         assert_eq!(
             result,
             vec![0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0020, 0x0040, 0x0080, 0x0100, 0x0200]
         );
     }
 
-    #[test]
-    fn walking_0s_test() {
-        let result = make_walking_bit_data(10, false);
+    #[tokio::test]
+    async fn walking_0s_test() {
+        let result = make_walking_bit_data(10, false).await;
         assert_eq!(
             result,
             vec![0xFFFE, 0xFFFD, 0xFFFB, 0xFFF7, 0xFFEF, 0xFFDF, 0xFFBF, 0xFF7F, 0xFEFF, 0xFDFF]
