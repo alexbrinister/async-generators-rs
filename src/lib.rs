@@ -44,6 +44,12 @@ pub async fn make_walking_bit_data(length: usize, walking_ones: bool) -> Vec<u32
     out
 }
 
+/// Create a vector of repeating words of a seed value XOR'd with 0 then u32::MAX..
+///
+/// # Arguments
+///
+/// * `seed`   - the seed value to begin the pattern.
+/// * `length` - Length of the output data pattern vector.
 pub async fn make_xor_data(seed: u32, length: usize) -> Vec<u32> {
     let mut out: Vec<u32> = vec![0; length];
     let mut fizz = false;
