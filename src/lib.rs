@@ -44,6 +44,19 @@ pub async fn make_walking_bit_data(length: usize, walking_ones: bool) -> Vec<u32
     out
 }
 
+pub async fn make_xor_data(seed: u32, length: usize) -> Vec<u32> {
+    let mut out: Vec<u32> = vec![0; length];
+    let mut fizz = false;
+
+    out.iter_mut().for_each(|element| {
+        *element = seed ^ (if fizz { 0x0000 } else { u32::MAX });
+        fizz = !fizz;
+        *element &= 0x0000FFFF;
+    });
+
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -70,5 +83,11 @@ mod tests {
             result,
             vec![0xFFFE, 0xFFFD, 0xFFFB, 0xFFF7, 0xFFEF, 0xFFDF, 0xFFBF, 0xFF7F, 0xFEFF, 0xFDFF]
         );
+    }
+
+    #[tokio::test]
+    async fn xor_test1() {
+        let result = make_xor_data(0x0FF0, 5).await;
+        assert_eq!(result, vec![0xF00F, 0x0FF0, 0xF00F, 0x0FF0, 0xF00F]);
     }
 }
