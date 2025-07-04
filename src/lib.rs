@@ -44,7 +44,7 @@ pub async fn make_walking_bit_data(length: usize, walking_ones: bool) -> Vec<u32
     out
 }
 
-/// Create a vector of repeating words of a seed value XOR'd with 0 then u32::MAX..
+/// Create a vector of repeating words of a seed value XOR'd with 0 then u32::MAX.
 ///
 /// # Arguments
 ///
@@ -52,7 +52,7 @@ pub async fn make_walking_bit_data(length: usize, walking_ones: bool) -> Vec<u32
 /// * `length` - Length of the output data pattern vector.
 pub async fn make_xor_data(seed: u32, length: usize) -> Vec<u32> {
     let mut out: Vec<u32> = vec![0; length];
-    let mut fizz = false;
+    let mut fizz = true;
 
     out.iter_mut().for_each(|element| {
         *element = seed ^ (if fizz { 0x0000 } else { u32::MAX });
@@ -61,6 +61,24 @@ pub async fn make_xor_data(seed: u32, length: usize) -> Vec<u32> {
     });
 
     out
+}
+
+/// Create a vector of repeating 0xAAAA and 0x5555.
+///
+/// # Arguments
+///
+/// * `length` - Length of the output data pattern vector.
+pub async fn make_as5s_data(length: usize) -> Vec<u32> {
+    make_xor_data(0xAAAAAAAA, length).await
+}
+
+/// Create a vector of repeating 0x0000 and 0xFFFF.
+///
+/// # Arguments
+///
+/// * `length` - Length of the output data pattern vector.
+pub async fn make_0sfs_data(length: usize) -> Vec<u32> {
+    make_xor_data(0x00000000, length).await
 }
 
 #[cfg(test)]
@@ -94,6 +112,18 @@ mod tests {
     #[tokio::test]
     async fn xor_test1() {
         let result = make_xor_data(0x0FF0, 5).await;
-        assert_eq!(result, vec![0xF00F, 0x0FF0, 0xF00F, 0x0FF0, 0xF00F]);
+        assert_eq!(result, vec![0x0FF0, 0xF00F, 0x0FF0, 0xF00F, 0x0FF0]);
+    }
+
+    #[tokio::test]
+    async fn as5s_test() {
+        let result = make_as5s_data(5).await;
+        assert_eq!(result, vec![0xAAAA, 0x5555, 0xAAAA, 0x5555, 0xAAAA]);
+    }
+
+    #[tokio::test]
+    async fn zeroes_fs_test() {
+        let result = make_0sfs_data(5).await;
+        assert_eq!(result, vec![0x0000, 0xFFFF, 0x0000, 0xFFFF, 0x0000]);
     }
 }
