@@ -9,27 +9,27 @@ pub async fn make_walking_bit_data(length: usize, walking_ones: bool) -> Vec<u32
     let mut flip = false;
     let mut index: usize = 0;
 
-    fn compute_value(index: usize, flip: bool, shift: u16) -> u16 {
-        if (index % 32) == 0 {
-            return 0x0001;
+    fn compute_value(index: usize, flip: bool, shift: u16) -> u32 {
+        if (index % 64) == 0 {
+            return 0x0000_0001;
         }
 
         if !flip {
             1 << shift
         } else {
-            0x8000 >> shift
+            0x8000_0000 >> shift
         }
     }
 
     out.iter_mut().for_each(|element| {
-        let shift: u16 = (index as u16) % 16;
+        let shift: u16 = (index as u16) % 32;
 
         if (index != 0) && (shift == 0) {
             flip = !flip;
         }
 
-        *element = compute_value(index, flip, shift) as u32;
-        *element = if walking_ones { *element } else { !*element } & (u16::MAX as u32);
+        *element = compute_value(index, flip, shift);
+        *element = if walking_ones { *element } else { !*element } & u32::MAX;
 
         index += 1;
     });
@@ -80,19 +80,95 @@ mod tests {
 
     #[tokio::test]
     async fn walking_1s_test() {
-        let result = make_walking_bit_data(10, true).await;
+        let result = make_walking_bit_data(37, true).await;
         assert_eq!(
             result,
-            vec![0x0001, 0x0002, 0x0004, 0x0008, 0x0010, 0x0020, 0x0040, 0x0080, 0x0100, 0x0200]
+            vec![
+                0x0000_0001,
+                0x0000_0002,
+                0x0000_0004,
+                0x0000_0008,
+                0x0000_0010,
+                0x0000_0020,
+                0x0000_0040,
+                0x0000_0080,
+                0x0000_0100,
+                0x0000_0200,
+                0x0000_0400,
+                0x0000_0800,
+                0x0000_1000,
+                0x0000_2000,
+                0x0000_4000,
+                0x0000_8000,
+                0x0001_0000,
+                0x0002_0000,
+                0x0004_0000,
+                0x0008_0000,
+                0x0010_0000,
+                0x0020_0000,
+                0x0040_0000,
+                0x0080_0000,
+                0x0100_0000,
+                0x0200_0000,
+                0x0400_0000,
+                0x0800_0000,
+                0x1000_0000,
+                0x2000_0000,
+                0x4000_0000,
+                0x8000_0000,
+                0x8000_0000,
+                0x4000_0000,
+                0x2000_0000,
+                0x1000_0000,
+                0x0800_0000,
+            ]
         );
     }
 
     #[tokio::test]
     async fn walking_0s_test() {
-        let result = make_walking_bit_data(10, false).await;
+        let result = make_walking_bit_data(37, false).await;
         assert_eq!(
             result,
-            vec![0xFFFE, 0xFFFD, 0xFFFB, 0xFFF7, 0xFFEF, 0xFFDF, 0xFFBF, 0xFF7F, 0xFEFF, 0xFDFF]
+            vec![
+                0xFFFF_FFFE,
+                0xFFFF_FFFD,
+                0xFFFF_FFFB,
+                0xFFFF_FFF7,
+                0xFFFF_FFEF,
+                0xFFFF_FFDF,
+                0xFFFF_FFBF,
+                0xFFFF_FF7F,
+                0xFFFF_FEFF,
+                0xFFFF_FDFF,
+                0xFFFF_FBFF,
+                0xFFFF_F7FF,
+                0xFFFF_EFFF,
+                0xFFFF_DFFF,
+                0xFFFF_BFFF,
+                0xFFFF_7FFF,
+                0xFFFE_FFFF,
+                0xFFFD_FFFF,
+                0xFFFB_FFFF,
+                0xFFF7_FFFF,
+                0xFFEF_FFFF,
+                0xFFDF_FFFF,
+                0xFFBF_FFFF,
+                0xFF7F_FFFF,
+                0xFEFF_FFFF,
+                0xFDFF_FFFF,
+                0xFBFF_FFFF,
+                0xF7FF_FFFF,
+                0xEFFF_FFFF,
+                0xDFFF_FFFF,
+                0xBFFF_FFFF,
+                0x7FFF_FFFF,
+                0x7FFF_FFFF,
+                0xBFFF_FFFF,
+                0xDFFF_FFFF,
+                0xEFFF_FFFF,
+                0xF7FF_FFFF,
+            ]
         );
     }
 
