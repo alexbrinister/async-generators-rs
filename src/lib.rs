@@ -1,10 +1,3 @@
-//! Simple add function
-///
-/// Adds two numbers together and produces the sum.
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
-
 /// Create a vector of walking bits.
 ///
 /// # Arguments
@@ -84,12 +77,6 @@ pub async fn make_0sfs_data(length: usize) -> Vec<u32> {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn addition_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
 
     #[tokio::test]
     async fn walking_1s_test() {
