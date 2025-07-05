@@ -50,7 +50,6 @@ pub async fn make_xor_data(seed: u32, length: usize) -> Vec<u32> {
     out.iter_mut().for_each(|element| {
         *element = seed ^ (if fizz { 0x0000 } else { u32::MAX });
         fizz = !fizz;
-        *element &= 0x0000FFFF;
     });
 
     out
@@ -62,7 +61,7 @@ pub async fn make_xor_data(seed: u32, length: usize) -> Vec<u32> {
 ///
 /// * `length` - Length of the output data pattern vector.
 pub async fn make_as5s_data(length: usize) -> Vec<u32> {
-    make_xor_data(0xAAAAAAAA, length).await
+    make_xor_data(0xAAAA_AAAA, length).await
 }
 
 /// Create a vector of repeating 0x0000 and 0xFFFF.
@@ -71,7 +70,7 @@ pub async fn make_as5s_data(length: usize) -> Vec<u32> {
 ///
 /// * `length` - Length of the output data pattern vector.
 pub async fn make_0sfs_data(length: usize) -> Vec<u32> {
-    make_xor_data(0x00000000, length).await
+    make_xor_data(0x0000_0000, length).await
 }
 
 #[cfg(test)]
@@ -174,19 +173,46 @@ mod tests {
 
     #[tokio::test]
     async fn xor_test1() {
-        let result = make_xor_data(0x0FF0, 5).await;
-        assert_eq!(result, vec![0x0FF0, 0xF00F, 0x0FF0, 0xF00F, 0x0FF0]);
+        let result = make_xor_data(0xBEEF_0FF0, 5).await;
+        assert_eq!(
+            result,
+            vec![
+                0xBEEF_0FF0,
+                0x4110_F00F,
+                0xBEEF_0FF0,
+                0x4110_F00F,
+                0xBEEF_0FF0
+            ]
+        );
     }
 
     #[tokio::test]
     async fn as5s_test() {
         let result = make_as5s_data(5).await;
-        assert_eq!(result, vec![0xAAAA, 0x5555, 0xAAAA, 0x5555, 0xAAAA]);
+        assert_eq!(
+            result,
+            vec![
+                0xAAAA_AAAA,
+                0x5555_5555,
+                0xAAAA_AAAA,
+                0x5555_5555,
+                0xAAAA_AAAA
+            ]
+        );
     }
 
     #[tokio::test]
     async fn zeroes_fs_test() {
         let result = make_0sfs_data(5).await;
-        assert_eq!(result, vec![0x0000, 0xFFFF, 0x0000, 0xFFFF, 0x0000]);
+        assert_eq!(
+            result,
+            vec![
+                0x0000_0000,
+                0xFFFF_FFFF,
+                0x0000_0000,
+                0xFFFF_FFFF,
+                0x0000_0000
+            ]
+        );
     }
 }
